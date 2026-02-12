@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Progress Tracker - 15 Day Challenge</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .day-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .day-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .day-header:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a3f91 100%);
+        }
+
+        .day-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .expand-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        .day-progress {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .progress-bar-container {
+            width: 150px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .day-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .day-content.expanded {
+            max-height: 5000px;
+        }
+
+        .problems-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 15px;
+        }
+
+        .problem-card {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .problem-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .problem-card.completed {
+            background: #f0f9ff;
+            border-color: #10b981;
+        }
+
+        .checkbox {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .checkbox:hover {
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .checkbox.checked {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .problem-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .problem-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1a202c;
+            margin-bottom: 3px;
+        }
+
+        .problem-platform {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .solve-btn {
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+
+        .solve-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .problems-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .day-progress {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
+
+        .resources {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .resources h2 {
+            font-size: 1.8rem;
+            color: #1a202c;
+            margin-bottom: 20px;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .resource-link {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #1a202c;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .resource-link:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+        }
+
+        .resource-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .resource-desc {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const PROBLEMS_BY_DAY = {
+            "Day 1 - Arrays & Strings": [
+                { name: "Contains Duplicate", url: "https://leetcode.com/problems/contains-duplicate/" },
+                { name: "Next Permutation", url: "https://leetcode.com/problems/next-permutation/" },
+                { name: "Max Chunks to Make Sorted", url: "https://leetcode.com/problems/max-chunks-to-make-sorted/" },
+                { name: "Majority Element", url: "https://leetcode.com/problems/majority-element/" },
+                { name: "Longest Substring Without Repeating Characters", url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" },
+                { name: "Boats to Save People", url: "https://leetcode.com/problems/boats-to-save-people/" }
+            ],
+            "Day 2 - Two Pointers & Sliding Window": [
+                { name: "Two Sum", url: "https://leetcode.com/problems/two-sum/" },
+                { name: "3Sum", url: "https://leetcode.com/problems/3sum/" },
+                { name: "Two Sum II - Input Array is Sorted", url: "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/" },
+                { name: "Container With Most Water", url: "https://leetcode.com/problems/container-with-most-water/" },
+                { name: "Maximum Average Subarray I", url: "https://leetcode.com/problems/maximum-average-subarray-i/" },
+                { name: "First Negative in Every Window of Size K", url: "https://www.geeksforgeeks.org/problems/first-negative-integer-in-every-window-of-size-k3345/1" },
+                { name: "Count Occurrences of Anagrams", url: "https://www.geeksforgeeks.org/problems/count-occurences-of-anagrams5839/1" },
+                { name: "Max Sum Subarray of Size K", url: "https://www.geeksforgeeks.org/problems/max-sum-subarray-of-size-k5313/1" }
+            ],
+            "Day 3 - Advanced Sliding Window & Matrix": [
+                { name: "Longest Substring Without Repeating Characters", url: "https://leetcode.com/problems/longest-substring-without-repeating-characters/" },
+                { name: "Minimum Size Subarray Sum", url: "https://leetcode.com/problems/minimum-size-subarray-sum/" },
+                { name: "Fruit Into Baskets", url: "https://leetcode.com/problems/fruit-into-baskets/" },
+                { name: "Maximize Number of 1's", url: "https://www.geeksforgeeks.org/problems/maximize-number-of-1s0905/1" },
+                { name: "Longest Repeating Character Replacement", url: "https://leetcode.com/problems/longest-repeating-character-replacement/" },
+                { name: "Matrix Boundary Traversal", url: "https://www.geeksforgeeks.org/problems/boundary-traversal-of-matrix-1587115620/1" },
+                { name: "Diagonal Traverse", url: "https://leetcode.com/problems/diagonal-traverse/" },
+                { name: "Rotate Image", url: "https://leetcode.com/problems/rotate-image/" },
+                { name: "Set Matrix Zeroes", url: "https://leetcode.com/problems/set-matrix-zeroes/" },
+                { name: "Number of Laser Beams in a Bank", url: "https://leetcode.com/problems/number-of-laser-beams-in-a-bank/" },
+                { name: "Brick Wall", url: "https://leetcode.com/problems/brick-wall/" },
+                { name: "Lucky Numbers in a Matrix", url: "https://leetcode.com/problems/lucky-numbers-in-a-matrix/" },
+                { name: "Spiral Matrix", url: "https://leetcode.com/problems/spiral-matrix/" }
+            ],
+            "Day 4 - Linked Lists": [
+                { name: "Palindrome Linked List", url: "https://leetcode.com/problems/palindrome-linked-list/" },
+                { name: "Reverse Linked List", url: "https://leetcode.com/problems/reverse-linked-list/" },
+                { name: "Reorder List", url: "https://leetcode.com/problems/reorder-list/" },
+                { name: "Intersection of Two Linked Lists", url: "https://leetcode.com/problems/intersection-of-two-linked-lists/" },
+                { name: "Linked List Cycle", url: "https://leetcode.com/problems/linked-list-cycle/" },
+                { name: "Remove Nth Node From End of List", url: "https://leetcode.com/problems/remove-nth-node-from-end-of-list/" },
+                { name: "Swapping Nodes in a Linked List", url: "https://leetcode.com/problems/swapping-nodes-in-a-linked-list/" },
+                { name: "Add Two Numbers", url: "https://leetcode.com/problems/add-two-numbers/" },
+                { name: "Add Two Numbers II", url: "https://leetcode.com/problems/add-two-numbers-ii/" },
+                { name: "Delete the Middle Node of a Linked List", url: "https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/" },
+                { name: "Middle of the Linked List", url: "https://leetcode.com/problems/middle-of-the-linked-list/" },
+                { name: "Remove Linked List Elements", url: "https://leetcode.com/problems/remove-linked-list-elements/" },
+                { name: "Odd Even Linked List", url: "https://leetcode.com/problems/odd-even-linked-list/" },
+                { name: "Reverse Nodes in k-Group", url: "https://leetcode.com/problems/reverse-nodes-in-k-group/" }
+            ],
+            "Day 5 - Stacks": [
+                { name: "Next Greater Element I", url: "https://leetcode.com/problems/next-greater-element-i/" },
+                { name: "Stock Span Problem", url: "https://www.geeksforgeeks.org/problems/stock-span-problem-1587115621/1" },
+                { name: "Largest Rectangle in Histogram", url: "https://leetcode.com/problems/largest-rectangle-in-histogram/" },
+                { name: "Asteroid Collision", url: "https://leetcode.com/problems/asteroid-collision/" },
+                { name: "Evaluate Reverse Polish Notation", url: "https://leetcode.com/problems/evaluate-reverse-polish-notation/" },
+                { name: "Min Stack", url: "https://leetcode.com/problems/min-stack/" },
+                { name: "Valid Parentheses", url: "https://leetcode.com/problems/valid-parentheses/" },
+                { name: "Remove Outermost Parentheses", url: "https://leetcode.com/problems/remove-outermost-parentheses/" },
+                { name: "Implement Stack using Queues", url: "https://leetcode.com/problems/implement-stack-using-queues/" },
+                { name: "Trapping Rain Water", url: "https://leetcode.com/problems/trapping-rain-water/" },
+                { name: "Remove All Adjacent Duplicates In String", url: "https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/" }
+            ],
+            "Day 6 - Binary Trees (Traversals)": [
+                { name: "Binary Tree Preorder Traversal", url: "https://leetcode.com/problems/binary-tree-preorder-traversal/" },
+                { name: "Binary Tree Postorder Traversal", url: "https://leetcode.com/problems/binary-tree-postorder-traversal/" },
+                { name: "Binary Tree Inorder Traversal", url: "https://leetcode.com/problems/binary-tree-inorder-traversal/" },
+                { name: "Binary Tree Level Order Traversal", url: "https://leetcode.com/problems/binary-tree-level-order-traversal/" },
+                { name: "Average of Levels in Binary Tree", url: "https://leetcode.com/problems/average-of-levels-in-binary-tree/" },
+                { name: "Maximum Level Sum of a Binary Tree", url: "https://leetcode.com/problems/maximum-level-sum-of-a-binary-tree/" },
+                { name: "Maximum Width of Binary Tree", url: "https://leetcode.com/problems/maximum-width-of-binary-tree/" },
+                { name: "All Nodes Distance K in Binary Tree", url: "https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/" }
+            ],
+            "Day 7 - Binary Trees (Advanced)": [
+                { name: "Burning Tree", url: "https://www.geeksforgeeks.org/problems/burning-tree/1" },
+                { name: "Amount of Time for Binary Tree to Be Infected", url: "https://leetcode.com/problems/amount-of-time-for-binary-tree-to-be-infected/" }
+            ],
+            "Day 8 - Binary Trees (Paths & Views)": [
+                { name: "Path Sum", url: "https://leetcode.com/problems/path-sum/" },
+                { name: "Path Sum II", url: "https://leetcode.com/problems/path-sum-ii/" },
+                { name: "Path Sum III", url: "https://leetcode.com/problems/path-sum-iii/" },
+                { name: "Lowest Common Ancestor of a Binary Tree", url: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" },
+                { name: "Subarray Sum Equals K", url: "https://leetcode.com/problems/subarray-sum-equals-k/" },
+                { name: "Binary Tree Left Side View", url: "https://leetcode.com/problems/binary-tree-left-side-view/" },
+                { name: "Binary Tree Right Side View", url: "https://leetcode.com/problems/binary-tree-right-side-view/" }
+            ],
+            "Day 9 - Backtracking": [
+                { name: "Permutations", url: "https://leetcode.com/problems/permutations/" },
+                { name: "Permutations II", url: "https://leetcode.com/problems/permutations-ii/" },
+                { name: "Combination Sum", url: "https://leetcode.com/problems/combination-sum/" },
+                { name: "Combination Sum II", url: "https://leetcode.com/problems/combination-sum-ii/" },
+                { name: "Combinations", url: "https://leetcode.com/problems/combinations/" },
+                { name: "Combination Sum III", url: "https://leetcode.com/problems/combination-sum-iii/" },
+                { name: "Unique Paths", url: "https://leetcode.com/problems/unique-paths/" },
+                { name: "Unique Paths II", url: "https://leetcode.com/problems/unique-paths-ii/" },
+                { name: "Unique Paths III", url: "https://leetcode.com/problems/unique-paths-iii/" },
+                { name: "Rat in a Maze Problem - I", url: "https://www.geeksforgeeks.org/problems/rat-in-a-maze-problem/1" }
+            ],
+            "Day 10 - Dynamic Programming (Basics)": [
+                { name: "Rat in a Maze Problem - I", url: "https://www.geeksforgeeks.org/problems/rat-in-a-maze-problem/1" },
+                { name: "Unique Paths III", url: "https://leetcode.com/problems/unique-paths-iii/" },
+                { name: "Fibonacci Number", url: "https://leetcode.com/problems/fibonacci-number/" },
+                { name: "Climbing Stairs", url: "https://leetcode.com/problems/climbing-stairs/" },
+                { name: "Frog Jump", url: "https://www.geeksforgeeks.org/problems/geek-jump/1" },
+                { name: "House Robber", url: "https://leetcode.com/problems/house-robber/" },
+                { name: "House Robber II", url: "https://leetcode.com/problems/house-robber-ii/" },
+                { name: "Longest Common Subsequence", url: "https://leetcode.com/problems/longest-common-subsequence/" },
+                { name: "Longest Increasing Subsequence", url: "https://leetcode.com/problems/longest-increasing-subsequence/" },
+                { name: "0-1 Knapsack Problem", url: "https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1" }
+            ],
+            "Day 11 - Dynamic Programming (Advanced)": [
+                { name: "Minimum Path Sum", url: "https://leetcode.com/problems/minimum-path-sum/" },
+                { name: "Triangle", url: "https://leetcode.com/problems/triangle/" },
+                { name: "Minimum Falling Path Sum", url: "https://leetcode.com/problems/minimum-falling-path-sum/" },
+                { name: "Minimum Falling Path Sum II", url: "https://leetcode.com/problems/minimum-falling-path-sum-ii/" },
+                { name: "Subsets", url: "https://leetcode.com/problems/subsets/" },
+                { name: "Partition Equal Subset Sum", url: "https://leetcode.com/problems/partition-equal-subset-sum/" },
+                { name: "Longest Palindromic Subsequence", url: "https://leetcode.com/problems/longest-palindromic-subsequence/" },
+                { name: "Longest Common Substring", url: "https://www.geeksforgeeks.org/problems/longest-common-substring1452/1" },
+                { name: "Wildcard Matching", url: "https://leetcode.com/problems/wildcard-matching/" },
+                { name: "Edit Distance", url: "https://leetcode.com/problems/edit-distance/" },
+                { name: "Distinct Subsequences", url: "https://leetcode.com/problems/distinct-subsequences/" }
+            ],
+            "Day 12 - Graph Basics": [
+                { name: "Find if Path Exists in Graph", url: "https://leetcode.com/problems/find-if-path-exists-in-graph/" },
+                { name: "All Paths From Source to Target", url: "https://leetcode.com/problems/all-paths-from-source-to-target/" },
+                { name: "BFS of Graph", url: "https://www.geeksforgeeks.org/problems/bfs-traversal-of-graph/1" },
+                { name: "DFS of Graph", url: "https://www.geeksforgeeks.org/problems/depth-first-traversal-for-a-graph/1" },
+                { name: "Number of Provinces", url: "https://leetcode.com/problems/number-of-provinces/" },
+                { name: "Count Unreachable Pairs of Nodes", url: "https://leetcode.com/problems/count-unreachable-pairs-of-nodes-in-an-undirected-graph/" },
+                { name: "Number of Islands", url: "https://leetcode.com/problems/number-of-islands/" },
+                { name: "Detect Cycle in Undirected Graph", url: "https://www.geeksforgeeks.org/problems/detect-cycle-in-an-undirected-graph/1" },
+                { name: "Detect Cycle in Directed Graph", url: "https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1" }
+            ],
+            "Day 13 - Graph BFS & Shortest Path": [
+                { name: "Coloring a Border", url: "https://leetcode.com/problems/coloring-a-border/" },
+                { name: "Shortest Path in Unweighted Graph", url: "https://www.naukri.com/code360/problems/shortest-path-in-an-unweighted-graph_981297" },
+                { name: "Rotting Oranges", url: "https://leetcode.com/problems/rotting-oranges/" },
+                { name: "Word Ladder", url: "https://leetcode.com/problems/word-ladder/" },
+                { name: "Word Ladder II", url: "https://leetcode.com/problems/word-ladder-ii/" },
+                { name: "01 Matrix", url: "https://leetcode.com/problems/01-matrix/" },
+                { name: "Bus Routes", url: "https://leetcode.com/problems/bus-routes/" },
+                { name: "Swim in Rising Water", url: "https://leetcode.com/problems/swim-in-rising-water/" }
+            ],
+            "Day 14 - Graph Advanced Algorithms": [
+                { name: "Topological Sort", url: "https://www.geeksforgeeks.org/problems/topological-sort/1" },
+                { name: "Course Schedule", url: "https://leetcode.com/problems/course-schedule/" },
+                { name: "Course Schedule II", url: "https://leetcode.com/problems/course-schedule-ii/" },
+                { name: "Dijkstra Algorithm", url: "https://www.geeksforgeeks.org/problems/implementing-dijkstra-set-1-adjacency-matrix/1" }
+            ],
+            "Day 15 - Graph Dijkstra Applications": [
+                { name: "Network Delay Time", url: "https://leetcode.com/problems/network-delay-time/" },
+                { name: "Number of Ways to Arrive at Destination", url: "https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/" },
+                { name: "Path With Minimum Effort", url: "https://leetcode.com/problems/path-with-minimum-effort/" },
+                { name: "Shortest Path in Binary Matrix", url: "https://leetcode.com/problems/shortest-path-in-binary-matrix/" }
+            ]
+        };
+
+        function App() {
+            const [expandedDays, setExpandedDays] = useState({});
+            const [completedProblems, setCompletedProblems] = useState(() => {
+                const saved = localStorage.getItem('dsa-progress-15day');
+                return saved ? JSON.parse(saved) : {};
+            });
+            const [searchQuery, setSearchQuery] = useState("");
+
+            useEffect(() => {
+                localStorage.setItem('dsa-progress-15day', JSON.stringify(completedProblems));
+            }, [completedProblems]);
+
+            const toggleDay = (day) => {
+                setExpandedDays(prev => ({
+                    ...prev,
+                    [day]: !prev[day]
+                }));
+            };
+
+            const toggleProblem = (problemName) => {
+                setCompletedProblems(prev => ({
+                    ...prev,
+                    [problemName]: !prev[problemName]
+                }));
+            };
+
+            const stats = useMemo(() => {
+                const allProblems = Object.values(PROBLEMS_BY_DAY).flat();
+                const totalProblems = allProblems.length;
+                const completed = Object.values(completedProblems).filter(Boolean).length;
+                const percentage = totalProblems > 0 ? Math.round((completed / totalProblems) * 100) : 0;
+                const daysCompleted = Object.keys(PROBLEMS_BY_DAY).filter(day => {
+                    const dayProblems = PROBLEMS_BY_DAY[day];
+                    return dayProblems.every(p => completedProblems[p.name]);
+                }).length;
+                
+                return { totalProblems, completed, percentage, daysCompleted };
+            }, [completedProblems]);
+
+            const filteredDays = useMemo(() => {
+                if (!searchQuery) return PROBLEMS_BY_DAY;
+                
+                const filtered = {};
+                Object.entries(PROBLEMS_BY_DAY).forEach(([day, problems]) => {
+                    const matchingProblems = problems.filter(p =>
+                        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                    if (matchingProblems.length > 0) {
+                        filtered[day] = matchingProblems;
+                    }
+                });
+                return filtered;
+            }, [searchQuery]);
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🚀 DSA 15-Day Challenge</h1>
+                        <p>Master Data Structures & Algorithms in 15 Days</p>
+                    </div>
+
+                    <div className="stats">
+                        <div className="stat-card">
+                            <span className="stat-number">{stats.completed}</span>
+                            <span className="stat-label">Problems Solved</span>
+                        </div>
+                        <div className="stat-card">
+                            <span className="stat-number">{stats.totalProblems}</span>
+                            <span className="stat-label">Total Problems</span>
+                        </div>
+                        <div className="stat-card">
+                            <span className="stat-number">{stats.percentage}%</span>
+                            <span className="stat-label">Progress</span>
+                        </div>
+                        <div className="stat-card">
+                            <span className="stat-number">{stats.daysCompleted}/15</span>
+                            <span className="stat-label">Days Completed</span>
+                        </div>
+                    </div>
+
+                    <div className="controls">
+                        <input
+                            type="text"
+                            className="search-box"
+                            placeholder="🔍 Search problems..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    {Object.entries(filteredDays).map(([day, problems]) => {
+                        const isExpanded = expandedDays[day];
+                        const completedCount = problems.filter(p => completedProblems[p.name]).length;
+                        const progress = (completedCount / problems.length) * 100;
+
+                        return (
+                            <div key={day} className="day-section">
+                                <div className="day-header" onClick={() => toggleDay(day)}>
+                                    <div className="day-title">
+                                        <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>▶</span>
+                                        {day}
+                                    </div>
+                                    <div className="day-progress">
+                                        <span className="progress-badge">
+                                            {completedCount}/{problems.length}
+                                        </span>
+                                        <div className="progress-bar-container">
+                                            <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className={`day-content ${isExpanded ? 'expanded' : ''}`}>
+                                    <div className="problems-grid">
+                                        {problems.map((problem, idx) => (
+                                            <div
+                                                key={idx}
+                                                className={`problem-card ${completedProblems[problem.name] ? 'completed' : ''}`}
+                                            >
+                                                <div
+                                                    className={`checkbox ${completedProblems[problem.name] ? 'checked' : ''}`}
+                                                    onClick={() => toggleProblem(problem.name)}
+                                                ></div>
+
+                                                <div className="problem-info">
+                                                    <div className="problem-name">{problem.name}</div>
+                                                    <div className="problem-platform">
+                                                        {problem.url.includes('leetcode.com') ? 'LeetCode' : 
+                                                         problem.url.includes('geeksforgeeks.org') ? 'GeeksForGeeks' : 'Coding Ninjas'}
+                                                    </div>
+                                                </div>
+
+                                                <a
+                                                    href={problem.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="solve-btn"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    Solve →
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    <div className="resources">
+                        <h2>📚 Learning Resources</h2>
+                        <div className="resource-grid">
+                            <a href="https://leetcode.com/problemset/" target="_blank" rel="noopener noreferrer" className="resource-link">
+                                <div className="resource-title">LeetCode</div>
+                                <div className="resource-desc">Official problem platform</div>
+                            </a>
+                            <a href="https://www.geeksforgeeks.org/" target="_blank" rel="noopener noreferrer" className="resource-link">
+                                <div className="resource-title">GeeksForGeeks</div>
+                                <div className="resource-desc">Tutorials and practice problems</div>
+                            </a>
+                            <a href="https://thita.ai/dsa-patterns-sheet" target="_blank" rel="noopener noreferrer" className="resource-link">
+                                <div className="resource-title">DSA Pattern Sheet</div>
+                                <div className="resource-desc">Complete pattern guide</div>
+                            </a>
+                            <a href="https://www.youtube.com/watch?v=DKWEYzF2xJU&list=PL2SB3o9_VW78xKoiCPtzLnTWjMOklYlNy" target="_blank" rel="noopener noreferrer" className="resource-link">
+                                <div className="resource-title">Video Tutorials</div>
+                                <div className="resource-desc">Step-by-step explanations</div>
+                            </a>
+                            <a href="https://discord.gg/zxywjSuvDT" target="_blank" rel="noopener noreferrer" className="resource-link">
+                                <div className="resource-title">Discord Community</div>
+                                <div className="resource-desc">Get help and discuss</div>
+                            </a>
+                            <a href="https://github.com/Guru-1205/Java-DSA-OOPS-PrepHub" target="_blank" rel="noopener noreferrer" className="resource-link">
+                                <div className="resource-title">GitHub Repo</div>
+                                <div className="resource-desc">Code solutions and notes</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
