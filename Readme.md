@@ -1,6 +1,6 @@
 # 🚀 DSA 15-Day Challenge – Progress Tracker
 
-An interactive **DSA (Data Structures & Algorithms) 15-Day Challenge Tracker** built using **React (CDN), HTML, CSS, and JavaScript**.
+An interactive **DSA (Data Structures & Algorithms) 15-Day Challenge Tracker** built using **HTML, CSS, and JavaScript**.
 
 This web app helps track daily problem-solving progress with real-time statistics, progress bars, search functionality, and persistent local storage.
 
@@ -28,7 +28,6 @@ https://ikjasrasool.github.io/DSA-15-Day-Challenge/
 - HTML5
 - CSS3 (Custom modern UI)
 - JavaScript (ES6)
-- React 18 (CDN version)
 - Babel (for JSX support)
 - GitHub Pages (Deployment)
 
@@ -59,41 +58,9 @@ https://ikjasrasool.github.io/DSA-15-Day-Challenge/
 - Graph Algorithms  
 - Dijkstra Applications  
 
----
 
-## 📷 Screenshots
 
-(Add screenshots here for better profile visibility)
 
----
-
-## 🚀 Deployment
-
-This project is deployed using **GitHub Pages**.
-
-To deploy:
-1. Push project to GitHub
-2. Rename main file to `index.html`
-3. Enable GitHub Pages in repository settings
-4. Select branch `main` and root folder
-
----
-
-## 📈 Why This Project?
-
-This project demonstrates:
-
-- Strong understanding of DSA roadmap structuring
-- React fundamentals (state, hooks, useMemo, useEffect)
-- Frontend UI/UX design
-- Local storage handling
-- Clean component logic
-- Deployment knowledge
-
-Perfect for:
-- Placement preparation
-- Internship applications
-- Portfolio showcase
 
 ---
 
